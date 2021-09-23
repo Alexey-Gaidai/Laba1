@@ -39,7 +39,7 @@ namespace Laba1
 
             double Xmin = double.Parse(textBox2.Text);
             double Xmax = double.Parse(textBox3.Text);
-            double Step = 0.01;
+            double Step = 0.1;
             
             // Количество точек графика
             int count = (int)Math.Ceiling((Xmax - Xmin) / Step) + 1;
