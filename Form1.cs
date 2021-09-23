@@ -7,7 +7,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using ZedGraph;
 using org.mariuszgromada.math.mxparser;
 
 namespace Laba1
@@ -23,10 +22,14 @@ namespace Laba1
 
         }
 
+        private void dichotomy()
+        {
+
+        }
+
         private void button1_Click(object sender, EventArgs e)
         {
-            Function f = new Function("f(x) = log(5, 4*x - 3) - ln(2*x) - log10(3*x)");
-            //Function f = new Function("f(x) = x^2");
+            Function f = new Function("f(x)="+textBox1.Text);
             string sklt = "f()";
             string a = sklt.Insert(2, textBox2.Text);
             string b = sklt.Insert(2, textBox3.Text);
@@ -35,41 +38,22 @@ namespace Laba1
             label2.Text = Convert.ToString(exp.calculate());
 
             double Xmin = double.Parse(textBox2.Text);
-
             double Xmax = double.Parse(textBox3.Text);
-
-            double Step = 0.001;
-
-
-
+            double Step = 0.01;
+            
             // Количество точек графика
-
-            int count = (int)Math.Ceiling((Xmax - Xmin) / Step)
-
-            + 1;
-
-
+            int count = (int)Math.Ceiling((Xmax - Xmin) / Step) + 1;
 
             // Массив значений X – общий для обоих графиков
-
             double[] x = new double[count];
 
-
-
             // Два массива Y – по одному для каждого графика
-
             double[] y1 = new double[count];
 
-
-
             // Расчитываем точки для графиков функции
-
             for (int i = 0; i < count; i++)
-
             {
-
                 // Вычисляем значение X
-
                 x[i] = Xmin + Step * i;
 
                 // Вычисляем значение функций в точке X
@@ -80,28 +64,16 @@ namespace Laba1
                 y1[i] = chartt.calculate();
 
             }
-
-
-
+            
             // Настраиваем оси графика
-
             chart1.ChartAreas[0].AxisX.Minimum = Xmin;
-
             chart1.ChartAreas[0].AxisX.Maximum = Xmax;
 
-
-
-            // Определяем шаг сетки
-
+            // Определяем шаг сеткn
             chart1.ChartAreas[0].AxisX.MajorGrid.Interval = Step;
 
-
-
             // Добавляем вычисленные значения в графики
-
             chart1.Series[0].Points.DataBindXY(x, y1);
-
         }
-        double eps = 0.001;
     }
 }
