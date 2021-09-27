@@ -22,8 +22,30 @@ namespace Laba1
 
         }
 
-        private void dichotomy()
+        private double f(double x)
         {
+            Function f = new Function("f(x) = " + textBox1.Text);
+            string sklt = "f()";
+            string fx = sklt.Insert(2, x.ToString());
+            fx = fx.Replace(",", ".");
+            Expression fxx = new Expression(fx, f);
+            return fxx.calculate();
+        }
+
+        private void dichotomy(double a, double b, double e)
+        {
+            double x = (a+b)/ 2;
+
+            while (!(Math.Abs(a-b)<=e))
+            {
+                if (f(a) * f(x) < 0)
+                    b = x;
+                else
+                    a = x;
+            }
+            x = (a + b) / 2;
+
+            label2.Text = f(x).ToString();
 
         }
 
@@ -37,10 +59,14 @@ namespace Laba1
             Expression exp2 = new Expression(b, f);
             label2.Text = Convert.ToString(exp.calculate());
 
+            
+
             double Xmin = double.Parse(textBox2.Text);
             double Xmax = double.Parse(textBox3.Text);
-            double Step = 0.1;
+            double Step = 1;
             
+            dichotomy(Xmin, Xmax, 0.001);
+
             // Количество точек графика
             int count = (int)Math.Ceiling((Xmax - Xmin) / Step) + 1;
 
