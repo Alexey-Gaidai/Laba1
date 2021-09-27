@@ -32,31 +32,31 @@ namespace Laba1
             return fxx.calculate();
         }
 
-        private void dichotomy(double a, double b, double e)
+        private double dichotomy(double a, double b, double e)
         {
-            double x = (a+b)/ 2;
-
-            while (!(Math.Abs(a-b)<=e))
+            double x;
+            while (Math.Abs(b-a) > e)
             {
-                if (f(a) * f(x) < 0)
+                x = (a + b) / 2;
+                if (f(x) > f(a))
                     b = x;
                 else
                     a = x;
             }
             x = (a + b) / 2;
-
-            label2.Text = f(x).ToString();
+            chart1.Series[1].Points.AddXY(x, f(x));
+            return Math.Round(x, 3);
 
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
-            Function f = new Function("f(x)="+textBox1.Text);
+            Function func = new Function("f(x)="+textBox1.Text);
             string sklt = "f()";
             string a = sklt.Insert(2, textBox2.Text);
             string b = sklt.Insert(2, textBox3.Text);
-            Expression exp = new Expression(a, f);
-            Expression exp2 = new Expression(b, f);
+            Expression exp = new Expression(a, func);
+            Expression exp2 = new Expression(b, func);
             label2.Text = Convert.ToString(exp.calculate());
 
             
@@ -64,8 +64,11 @@ namespace Laba1
             double Xmin = double.Parse(textBox2.Text);
             double Xmax = double.Parse(textBox3.Text);
             double Step = 1;
+
+            double result = dichotomy(Xmin, Xmax, 0.001);
             
-            dichotomy(Xmin, Xmax, 0.001);
+            label2.Text = Math.Round(f(result), 5).ToString();
+            
 
             // Количество точек графика
             int count = (int)Math.Ceiling((Xmax - Xmin) / Step) + 1;
@@ -85,7 +88,7 @@ namespace Laba1
                 // Вычисляем значение функций в точке X
                 string d = sklt.Insert(2, Convert.ToString(x[i]));
                 string eeee = d.Replace(",", ".");
-                Expression chartt = new Expression(eeee, f);
+                Expression chartt = new Expression(eeee, func);
 
                 y1[i] = chartt.calculate();
 
