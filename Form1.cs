@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using org.mariuszgromada.math.mxparser;
+using System.Threading;
 
 namespace Laba1
 {
@@ -19,10 +20,10 @@ namespace Laba1
         }
         private void Form1_Load(object sender, EventArgs e)
         {
-
+            
         }
 
-        private double f(double x)
+        private double f(double x)//вынес подставления значения в функцию в отдельный метод
         {
             Function f = new Function("f(x) = " + textBox1.Text);
             string sklt = "f()";
@@ -32,7 +33,7 @@ namespace Laba1
             return fxx.calculate();
         }
 
-        private double dichotomy(double a, double b, double e)
+        private double dichotomy(double a, double b, double e)//метод дихотомии
         {
             double x;
             while (Math.Abs(b-a) > e)
@@ -44,65 +45,82 @@ namespace Laba1
                     a = x;
             }
             x = (a + b) / 2;
-            chart1.Series[1].Points.AddXY(x, f(x));
             return Math.Round(x, 3);
 
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void graph(double min, double max, double step)
         {
-            Function func = new Function("f(x)="+textBox1.Text);
-            string sklt = "f()";
-            string a = sklt.Insert(2, textBox2.Text);
-            string b = sklt.Insert(2, textBox3.Text);
-            Expression exp = new Expression(a, func);
-            Expression exp2 = new Expression(b, func);
-            label2.Text = Convert.ToString(exp.calculate());
+            int count = (int)Math.Ceiling((max - min) / step) + 1;
 
-            
-
-            double Xmin = double.Parse(textBox2.Text);
-            double Xmax = double.Parse(textBox3.Text);
-            double Step = 1;
-
-            double result = dichotomy(Xmin, Xmax, 0.001);
-            
-            label2.Text = Math.Round(f(result), 5).ToString();
-            
-
-            // Количество точек графика
-            int count = (int)Math.Ceiling((Xmax - Xmin) / Step) + 1;
-
-            // Массив значений X – общий для обоих графиков
             double[] x = new double[count];
-
-            // Два массива Y – по одному для каждого графика
             double[] y1 = new double[count];
 
-            // Расчитываем точки для графиков функции
             for (int i = 0; i < count; i++)
             {
-                // Вычисляем значение X
-                x[i] = Xmin + Step * i;
-
-                // Вычисляем значение функций в точке X
-                string d = sklt.Insert(2, Convert.ToString(x[i]));
-                string eeee = d.Replace(",", ".");
-                Expression chartt = new Expression(eeee, func);
-
-                y1[i] = chartt.calculate();
-
+                x[i] = min + step * i;
+                y1[i] = f(x[i]);
             }
-            
-            // Настраиваем оси графика
-            chart1.ChartAreas[0].AxisX.Minimum = Xmin;
-            chart1.ChartAreas[0].AxisX.Maximum = Xmax;
 
-            // Определяем шаг сеткn
-            chart1.ChartAreas[0].AxisX.MajorGrid.Interval = Step;
+            chart1.ChartAreas[0].AxisX.Minimum = min;
+            chart1.ChartAreas[0].AxisX.Maximum = max;
 
-            // Добавляем вычисленные значения в графики
+            chart1.ChartAreas[0].AxisX.MajorGrid.Interval = step;
+
             chart1.Series[0].Points.DataBindXY(x, y1);
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            if (textBox1.Text == "" || textBox2.Text == "" || textBox3.Text == "" || textBox4.Text == "")//проверка на заполненность данных
+            {
+                DialogResult err = MessageBox.Show("Введите все данные!!!", "Ошибка!");
+            }
+            else
+            {
+                try
+                {
+                    double Xmin = double.Parse(textBox2.Text);
+                    double Xmax = double.Parse(textBox3.Text);
+                    double eps = double.Parse(textBox4.Text);
+                    double Step = 1;
+                    double result;                
+
+                    result = dichotomy(Xmin, Xmax, eps);
+                    chart1.Series[1].Points.AddXY(result, f(result));
+
+                    label2.Text = Math.Round(f(result), 5).ToString();
+
+                    if (Double.IsNaN(result) is true)
+                    {
+                        DialogResult err = MessageBox.Show("Формула введена неверно!", "Ошибка!");
+                    }
+
+                    graph(Xmin, Xmax, Step);
+
+                }
+                catch (System.FormatException)
+                {
+                    DialogResult err = MessageBox.Show("Значения введены неверно!\nПроверьте корректность данных", "Ошибка!");
+                }
+            }
+        }
+
+       private void открытьToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
+
+        private void справкаToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            textBox1.Text = "";
+            textBox2.Text = "";
+            textBox3.Text = "";
+            textBox4.Text = "";
+            chart1.Series[0].Points.Clear();
+            chart1.Series[1].Points.Clear();
+            chart1.Update();
+            label2.Text = "";
         }
     }
 }
