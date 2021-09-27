@@ -70,8 +70,12 @@ namespace Laba1
             chart1.Series[0].Points.DataBindXY(x, y1);
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private async void button1_Click(object sender, EventArgs e)
         {
+            if (Double.IsNaN(f(1)) == true)
+            {
+                DialogResult err = MessageBox.Show("Функция введена неверно!!!\nНажмите ОЧИСТИТЬ и повторите поптыку!", "Ошибка!");
+            }
             if (textBox1.Text == "" || textBox2.Text == "" || textBox3.Text == "" || textBox4.Text == "")//проверка на заполненность данных
             {
                 DialogResult err = MessageBox.Show("Введите все данные!!!", "Ошибка!");
@@ -84,9 +88,9 @@ namespace Laba1
                     double Xmax = double.Parse(textBox3.Text);
                     double eps = double.Parse(textBox4.Text);
                     double Step = 1;
-                    double result;                
+                    double result = 0;
 
-                    result = dichotomy(Xmin, Xmax, eps);
+                    await Task.Run(() => result = dichotomy(Xmin, Xmax, eps));
                     chart1.Series[1].Points.AddXY(result, f(result));
 
                     label2.Text = Math.Round(f(result), 5).ToString();
