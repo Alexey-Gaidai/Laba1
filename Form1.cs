@@ -20,7 +20,6 @@ namespace Laba1
         }
         private void Form1_Load(object sender, EventArgs e)
         {
-            
         }
 
         private double f(double x)//вынес подставления значения в функцию в отдельный метод
@@ -31,6 +30,12 @@ namespace Laba1
             fx = fx.Replace(",", ".");
             Expression fxx = new Expression(fx, f);
             return fxx.calculate();
+        }
+        
+        async Task<Double> method(double a, double b, double e)
+        {
+             return await Task.Run(() => dichotomy(a, b, e)); 
+            
         }
 
         private double dichotomy(double a, double b, double e)//метод дихотомии
@@ -90,7 +95,7 @@ namespace Laba1
                     double Step = 1;
                     double result = 0;
 
-                    await Task.Run(() => result = dichotomy(Xmin, Xmax, eps));
+                    result = await method(Xmin, Xmax, eps);
                     chart1.Series[1].Points.AddXY(result, f(result));
 
                     label2.Text = Math.Round(f(result), 5).ToString();
