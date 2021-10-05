@@ -34,24 +34,36 @@ namespace Laba1
         
         async Task<Double> method(double a, double b, double e)
         {
-             return await Task.Run(() => dichotomy(a, b, e)); 
-            
+             return await Task.Run(() => dichotomy(a, b, e));  
         }
+
+        public List<points> graphpoints = new List<points>();
 
         private double dichotomy(double a, double b, double e)//метод дихотомии
         {
-            double x;
-            while (Math.Abs(b-a) > e)
+            double d = (-1 + Math.Sqrt(5)) / 2;
+            double x1, x2;
+            while (true)
             {
-                x = (a + b) / 2;
-                if (f(x) > f(a))
-                    b = x;
+                x1 = b - (b - a) * d;
+                x2 = a + (b - a) * d;
+                if (f(x1) >= f(x2))
+                {
+                    a = x1;
+                    points p = new points(x1, f(x1));
+                    graphpoints.Add(p);
+                }
                 else
-                    a = x;
+                {
+                    b = x2;
+                    points p1 = new points(x2, f(x2));
+                    graphpoints.Add(p1);
+                }
+                if (Math.Abs(b - a) < e)
+                    break;
             }
-            x = (a + b) / 2;
-            return Math.Round(x, 3);
 
+            return (a + b) / 2;
         }
 
         private void graph(double min, double max, double step)
@@ -77,6 +89,8 @@ namespace Laba1
 
         private async void button1_Click(object sender, EventArgs e)
         {
+            chart1.Series[0].Points.Clear();
+            chart1.Series[1].Points.Clear();
             if (Double.IsNaN(f(1)) == true)
             {
                 DialogResult err = MessageBox.Show("Функция введена неверно!!!\nНажмите ОЧИСТИТЬ и повторите поптыку!", "Ошибка!");
@@ -100,11 +114,6 @@ namespace Laba1
 
                     label2.Text = Math.Round(f(result), 5).ToString();
 
-                    if (Double.IsNaN(result) is true)
-                    {
-                        DialogResult err = MessageBox.Show("Формула введена неверно!", "Ошибка!");
-                    }
-
                     graph(Xmin, Xmax, Step);
 
                 }
@@ -113,6 +122,7 @@ namespace Laba1
                     DialogResult err = MessageBox.Show("Значения введены неверно!\nПроверьте корректность данных", "Ошибка!");
                 }
             }
+            label7.Text = graphpoints.Count.ToString();
         }
 
        private void открытьToolStripMenuItem_Click(object sender, EventArgs e)
@@ -130,6 +140,25 @@ namespace Laba1
             chart1.Series[1].Points.Clear();
             chart1.Update();
             label2.Text = "";
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            foreach (var p in graphpoints)
+            {
+                chart1.Series[2].Points.AddXY(p.x, p.y);
+            }
+
+        }
+    }
+    public class points
+    {
+        public double x;
+        public double y;
+        public points(double X, double Y)
+        {
+            this.x = X;
+            this.y = Y;
         }
     }
 }
