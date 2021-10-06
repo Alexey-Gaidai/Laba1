@@ -34,24 +34,37 @@ namespace Laba1
         
         async Task<Double> method(double a, double b, double e)
         {
-             return await Task.Run(() => dichotomy(a, b, e)); 
+             return await Task.Run(() => mingold(a, b, e)); 
             
         }
 
-        private double dichotomy(double a, double b, double e)//метод дихотомии
-        {
-            double x;
-            while (Math.Abs(b-a) > e)
-            {
-                x = (a + b) / 2;
-                if (f(x) > f(a))
-                    b = x;
-                else
-                    a = x;
-            }
-            x = (a + b) / 2;
-            return Math.Round(x, 3);
+        public static List<point> steps = new List<point>();
 
+        private double mingold(double a, double b, double e)//метод дихотомии
+        {
+            double d = (-1 + Math.Sqrt(5)) / 2;
+            double x1, x2;
+            while (true)
+            {
+                x1 = b - (b - a) * d;
+                x2 = a + (b - a) * d;
+                if (f(x1) >= f(x2))
+                {
+                    a = x1;
+                    point p = new point(a, f(a));
+                    steps.Add(p);
+                }
+                else
+                {
+                    b = x2;
+                    point p = new point(b, f(b));
+                    steps.Add(p);
+                }
+                if (Math.Abs(b - a) < e)
+                    break;
+            }
+
+            return (a + b) / 2;
         }
 
         private void graph(double min, double max, double step)
@@ -77,6 +90,8 @@ namespace Laba1
 
         private async void button1_Click(object sender, EventArgs e)
         {
+            chart1.Series[1].Points.Clear();
+            chart1.Update();
             if (Double.IsNaN(f(1)) == true)
             {
                 DialogResult err = MessageBox.Show("Функция введена неверно!!!\nНажмите ОЧИСТИТЬ и повторите поптыку!", "Ошибка!");
@@ -96,6 +111,7 @@ namespace Laba1
                     double result = 0;
 
                     result = await method(Xmin, Xmax, eps);
+                    
                     chart1.Series[1].Points.AddXY(result, f(result));
 
                     label2.Text = Math.Round(f(result), 5).ToString();
@@ -113,6 +129,10 @@ namespace Laba1
                     DialogResult err = MessageBox.Show("Значения введены неверно!\nПроверьте корректность данных", "Ошибка!");
                 }
             }
+
+            counter = 0;
+            //chart1.Series[2].Points.AddXY(steps[counter-1].x, steps[counter-1].y);            
+            label7.Text = "Шаг: " + +counter+"/"+steps.Count.ToString();
         }
 
        private void открытьToolStripMenuItem_Click(object sender, EventArgs e)
@@ -130,6 +150,54 @@ namespace Laba1
             chart1.Series[1].Points.Clear();
             chart1.Update();
             label2.Text = "";
+        }
+        public int counter;
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            if (counter < steps.Count)
+            {
+                if (chart1.Series[2].Points.Count >= 1)
+                {
+                    chart1.Series[2].Points.RemoveAt(chart1.Series[2].Points.Count - 1);
+                    
+                }
+                else
+                {
+                    chart1.Series[2].Points.AddXY(steps[counter].x, steps[counter].y);
+                    counter++;
+                    label7.Text = "Шаг: " + +counter + "/" + steps.Count.ToString();
+                }
+              
+            }
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            if (counter >= 1)
+            {
+                
+                if (chart1.Series[2].Points.Count >= 1)
+                {
+                    chart1.Series[2].Points.RemoveAt(chart1.Series[2].Points.Count-1);
+                }
+                else
+                {
+                    chart1.Series[2].Points.AddXY(steps[counter].x, steps[counter].y);
+                    label7.Text = "Шаг: " + +counter + "/" + steps.Count.ToString();
+                    counter--;
+                }
+            }
+        }
+    }
+
+    public class point
+    {
+        public double x, y;
+        public point(double X, double Y)
+        {
+            this.x = X;
+            this.y = Y;
         }
     }
 }
