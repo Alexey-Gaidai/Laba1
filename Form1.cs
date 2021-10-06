@@ -14,6 +14,7 @@ namespace Laba1
 {
     public partial class Form1 : Form
     {
+        public int counter;
         public Form1()
         {
             InitializeComponent();
@@ -38,7 +39,7 @@ namespace Laba1
             
         }
 
-        public static List<point> steps = new List<point>();
+        public static List<point> steps = new List<point>();//список точек-шагов
 
         private double mingold(double a, double b, double e)//метод дихотомии
         {
@@ -67,7 +68,7 @@ namespace Laba1
             return (a + b) / 2;
         }
 
-        private void graph(double min, double max, double step)
+        private void graph(double min, double max, double step)//отрисовка графика
         {
             int count = (int)Math.Ceiling((max - min) / step) + 1;
 
@@ -90,13 +91,15 @@ namespace Laba1
 
         private async void button1_Click(object sender, EventArgs e)
         {
-            chart1.Series[1].Points.Clear();
+            chart1.Series[1].Points.Clear();//очищаем все
             chart1.Update();
             steps.Clear();
+
             if (Double.IsNaN(f(1)) == true)
             {
                 DialogResult err = MessageBox.Show("Функция введена неверно!!!\nНажмите ОЧИСТИТЬ и повторите поптыку!", "Ошибка!");
             }
+
             if (textBox1.Text == "" || textBox2.Text == "" || textBox3.Text == "" || textBox4.Text == "")//проверка на заполненность данных
             {
                 DialogResult err = MessageBox.Show("Введите все данные!!!", "Ошибка!");
@@ -108,21 +111,20 @@ namespace Laba1
                     double Xmin = double.Parse(textBox2.Text);
                     double Xmax = double.Parse(textBox3.Text);
                     double eps = double.Parse(textBox4.Text);
-                    double Step = 1;
                     double result = 0;
 
                     result = await method(Xmin, Xmax, eps);
                     
                     chart1.Series[1].Points.AddXY(result, f(result));
 
+                    point end = new point(result, f(result));//добавляем конечную точку
+                    steps.Add(end);
+
                     label2.Text = Math.Round(f(result), 5).ToString();
 
-                    if (Double.IsNaN(result) is true)
-                    {
-                        DialogResult err = MessageBox.Show("Формула введена неверно!", "Ошибка!");
-                    }
-
-                    graph(Xmin, Xmax, Step);
+                    graph(Xmin, Xmax, 1);
+                    
+                    counter = 0;
 
                 }
                 catch (System.FormatException)
@@ -130,16 +132,13 @@ namespace Laba1
                     DialogResult err = MessageBox.Show("Значения введены неверно!\nПроверьте корректность данных", "Ошибка!");
                 }
             }
-
-            counter = 0;
-            //chart1.Series[2].Points.AddXY(steps[counter-1].x, steps[counter-1].y);            
             label7.Text = "Шаг: " + +counter+"/"+steps.Count.ToString();
         }
 
        private void открытьToolStripMenuItem_Click(object sender, EventArgs e)
-        {
+       {
             this.Close();
-        }
+       }
 
         private void справкаToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -152,37 +151,33 @@ namespace Laba1
             chart1.Update();
             label2.Text = "";
         }
-        public int counter;
 
-        private void button3_Click(object sender, EventArgs e)
+        private void button3_Click(object sender, EventArgs e)//шаг вперед
         {
             if (counter < steps.Count)
             {
                 if (chart1.Series[2].Points.Count >= 1)
                 {
                     chart1.Series[2].Points.RemoveAt(chart1.Series[2].Points.Count - 1);
-                    
                 }
-                else
+                if (chart1.Series[2].Points.Count < 1)
                 {
                     chart1.Series[2].Points.AddXY(steps[counter].x, steps[counter].y);
                     counter++;
                     label7.Text = "Шаг: " + +counter + "/" + steps.Count.ToString();
                 }
-              
             }
         }
 
-        private void button2_Click(object sender, EventArgs e)
+        private void button2_Click(object sender, EventArgs e)//шаг назад
         {
             if (counter >= 1)
             {
-                
                 if (chart1.Series[2].Points.Count >= 1)
                 {
                     chart1.Series[2].Points.RemoveAt(chart1.Series[2].Points.Count-1);
                 }
-                else
+                if (chart1.Series[2].Points.Count < 1)
                 {
                     chart1.Series[2].Points.AddXY(steps[counter-1].x, steps[counter-1].y);
                     label7.Text = "Шаг: " + +counter + "/" + steps.Count.ToString();
@@ -192,7 +187,7 @@ namespace Laba1
         }
     }
 
-    public class point
+    public class point//класс для сохранения точек
     {
         public double x, y;
         public point(double X, double Y)
@@ -202,3 +197,4 @@ namespace Laba1
         }
     }
 }
+//log(5,4*x-3)-ln(2*x)+log10(3.14)
