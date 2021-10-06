@@ -92,6 +92,7 @@ namespace Laba1
         {
             chart1.Series[1].Points.Clear();
             chart1.Update();
+            steps.Clear();
             if (Double.IsNaN(f(1)) == true)
             {
                 DialogResult err = MessageBox.Show("Функция введена неверно!!!\nНажмите ОЧИСТИТЬ и повторите поптыку!", "Ошибка!");
@@ -183,7 +184,7 @@ namespace Laba1
                 }
                 else
                 {
-                    chart1.Series[2].Points.AddXY(steps[counter].x, steps[counter].y);
+                    chart1.Series[2].Points.AddXY(steps[counter-1].x, steps[counter-1].y);
                     label7.Text = "Шаг: " + +counter + "/" + steps.Count.ToString();
                     counter--;
                 }
