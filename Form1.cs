@@ -10,13 +10,11 @@ using System.Windows.Forms;
 using org.mariuszgromada.math.mxparser;
 using System.Threading;
 
-//210; 200; 188
-
 namespace Laba1
 {
     public partial class Form1 : Form
     {
-        public int counter;
+        public int counter;//счетчик для шагов
         public Form1()
         {
             InitializeComponent();
@@ -27,23 +25,33 @@ namespace Laba1
 
         private double f(double x)//вынес подставления значения в функцию в отдельный метод
         {
-            Function f = new Function("f(x) = " + textBox1.Text);
-            string sklt = "f()";
-            string fx = sklt.Insert(2, x.ToString());
-            fx = fx.Replace(",", ".");
-            Expression fxx = new Expression(fx, f);
-            return fxx.calculate();
+            double result = 0;
+            try
+            {
+                Function f = new Function("f(x) = " + textBox1.Text);
+                string sklt = "f()";
+                string fx = sklt.Insert(2, x.ToString());
+                fx = fx.Replace(",", ".");
+                Expression fxx = new Expression(fx, f);
+                result = fxx.calculate();
+                
+            }
+            catch(System.ComponentModel.Win32Exception)
+            {
+                this.Close();
+            }
+            return result;
         }
         
-        async Task<Double> method(double a, double b, double e)
+        async Task<Double> method(double a, double b, double e)//асинхроним расчеты метода
         {
-             return await Task.Run(() => mingold(a, b, e)); 
-            
+            var result = await Task.Run(() => mingold(a, b, e));
+            return result;
         }
 
         public static List<point> steps = new List<point>();//список точек-шагов
 
-        private double mingold(double a, double b, double e)//метод дихотомии
+        private double mingold(double a, double b, double e)//метод золотого сечения
         {
             double d = (-1 + Math.Sqrt(5)) / 2;
             double x1, x2;
@@ -66,14 +74,24 @@ namespace Laba1
                 if (Math.Abs(b - a) < e)
                     break;
             }
-
             return (a + b) / 2;
         }
 
-        private void graph(double min, double max, double step)//отрисовка графика
+        public async Task drawgraph(double min, double max, double step)//асинхронная отрисовка графа, так как именно его отрисовка руинит программу
+        {
+            await Task.Run(() => graph(min, max, step));
+        }
+
+        public void addpoint(double[] x, double[] y1)//метод добавления сплайна на график
+        {
+            chart1.Series[0].Points.DataBindXY(x, y1);
+        }
+
+        public void graph(double min, double max, double step)//сама отрисовка графика
         {
             try
             {
+                
                 int count = (int)Math.Ceiling((max - min) / step) + 1;
 
                 double[] x = new double[count];
@@ -84,13 +102,9 @@ namespace Laba1
                     x[i] = min + step * i;
                     y1[i] = f(x[i]);
                 }
-
-                chart1.ChartAreas[0].AxisX.Minimum = min;
-                chart1.ChartAreas[0].AxisX.Maximum = max;
-
-                chart1.ChartAreas[0].AxisX.MajorGrid.Interval = step;
-
-                chart1.Series[0].Points.DataBindXY(x, y1);
+                Action action = () => addpoint(x, y1);//так как этот метод находится в другом потоке то вызываем через инвоук
+                Invoke(action);
+                
             }
             catch(System.OverflowException)
             {
@@ -105,7 +119,7 @@ namespace Laba1
             chart1.Update();
             steps.Clear();
 
-            if (Double.IsNaN(f(1)) == true)
+            if (Double.IsNaN(f(1)) == true)//проверка на нечисло
             {
                 DialogResult err = MessageBox.Show("Функция введена неверно!!!\nНажмите ОЧИСТИТЬ и повторите поптыку!", "Ошибка!");
             }
@@ -121,9 +135,14 @@ namespace Laba1
                     double Xmin = double.Parse(textBox2.Text);
                     double Xmax = double.Parse(textBox3.Text);
                     double eps = double.Parse(textBox4.Text);
-                    double result = 0;
 
-                    result = await method(Xmin, Xmax, eps);
+                    chart1.ChartAreas[0].AxisX.Minimum = Xmin;
+                    chart1.ChartAreas[0].AxisX.Maximum = Xmax;
+                    chart1.ChartAreas[0].AxisX.MajorGrid.Interval = 1;
+
+
+                    double result = await method(Xmin, Xmax, eps);
+                    
                     
                     chart1.Series[1].Points.AddXY(result, f(result));
 
@@ -132,7 +151,7 @@ namespace Laba1
 
                     label2.Text = Math.Round(f(result), 5).ToString();
 
-                    graph(Xmin, Xmax, 1);
+                    await drawgraph(Xmin, Xmax, 1);
                     
                     counter = 0;
 
