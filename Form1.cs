@@ -10,6 +10,8 @@ using System.Windows.Forms;
 using org.mariuszgromada.math.mxparser;
 using System.Threading;
 
+//210; 200; 188
+
 namespace Laba1
 {
     public partial class Form1 : Form
