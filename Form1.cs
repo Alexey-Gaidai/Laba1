@@ -72,23 +72,30 @@ namespace Laba1
 
         private void graph(double min, double max, double step)//отрисовка графика
         {
-            int count = (int)Math.Ceiling((max - min) / step) + 1;
-
-            double[] x = new double[count];
-            double[] y1 = new double[count];
-
-            for (int i = 0; i < count; i++)
+            try
             {
-                x[i] = min + step * i;
-                y1[i] = f(x[i]);
+                int count = (int)Math.Ceiling((max - min) / step) + 1;
+
+                double[] x = new double[count];
+                double[] y1 = new double[count];
+
+                for (int i = 0; i < count; i++)
+                {
+                    x[i] = min + step * i;
+                    y1[i] = f(x[i]);
+                }
+
+                chart1.ChartAreas[0].AxisX.Minimum = min;
+                chart1.ChartAreas[0].AxisX.Maximum = max;
+
+                chart1.ChartAreas[0].AxisX.MajorGrid.Interval = step;
+
+                chart1.Series[0].Points.DataBindXY(x, y1);
             }
-
-            chart1.ChartAreas[0].AxisX.Minimum = min;
-            chart1.ChartAreas[0].AxisX.Maximum = max;
-
-            chart1.ChartAreas[0].AxisX.MajorGrid.Interval = step;
-
-            chart1.Series[0].Points.DataBindXY(x, y1);
+            catch(System.OverflowException)
+            {
+                DialogResult err = MessageBox.Show("Границы введены неверно!!!\nУбедитесь в правильности введеных данных и повторите поптыку!", "Ошибка!");
+            }
         }
 
         private async void button1_Click(object sender, EventArgs e)
