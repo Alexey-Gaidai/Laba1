@@ -92,6 +92,7 @@ namespace Laba1
         private async void button1_Click(object sender, EventArgs e)
         {
             chart1.Series[1].Points.Clear();//очищаем все
+            chart1.Series[2].Points.Clear();
             chart1.Update();
             steps.Clear();
 
@@ -156,16 +157,11 @@ namespace Laba1
         {
             if (counter < steps.Count)
             {
-                if (chart1.Series[2].Points.Count >= 1)
-                {
-                    chart1.Series[2].Points.RemoveAt(chart1.Series[2].Points.Count - 1);
-                }
-                if (chart1.Series[2].Points.Count < 1)
-                {
-                    chart1.Series[2].Points.AddXY(steps[counter].x, steps[counter].y);
-                    counter++;
-                    label7.Text = "Шаг: " + +counter + "/" + steps.Count.ToString();
-                }
+                chart1.Series[2].Points.Clear();
+                chart1.Series[2].Points.AddXY(steps[counter].x, steps[counter].y);
+                counter++;
+                label7.Text = "Шаг: " + +counter + "/" + steps.Count.ToString();
+                
             }
         }
 
@@ -173,16 +169,10 @@ namespace Laba1
         {
             if (counter >= 1)
             {
-                if (chart1.Series[2].Points.Count >= 1)
-                {
-                    chart1.Series[2].Points.RemoveAt(chart1.Series[2].Points.Count-1);
-                }
-                if (chart1.Series[2].Points.Count < 1)
-                {
-                    chart1.Series[2].Points.AddXY(steps[counter-1].x, steps[counter-1].y);
-                    label7.Text = "Шаг: " + +counter + "/" + steps.Count.ToString();
-                    counter--;
-                }
+                chart1.Series[2].Points.Clear();
+                chart1.Series[2].Points.AddXY(steps[counter-1].x, steps[counter-1].y);
+                label7.Text = "Шаг: " + +counter + "/" + steps.Count.ToString();
+                counter--;
             }
         }
     }
