@@ -25,22 +25,14 @@ namespace Laba1
 
         private double f(double x)//вынес подставления значения в функцию в отдельный метод
         {
-            double result = 0;
-            try
-            {
+                double result = 0;
                 Function f = new Function("f(x) = " + textBox1.Text);
                 string sklt = "f()";
                 string fx = sklt.Insert(2, x.ToString());
                 fx = fx.Replace(",", ".");
                 Expression fxx = new Expression(fx, f);
-                result = fxx.calculate();
-                
-            }
-            catch(System.ComponentModel.Win32Exception)
-            {
-                this.Close();
-            }
-            return result;
+                result = fxx.calculate();   
+                return result;
         }
         
         async Task<Double> method(double a, double b, double e)//асинхроним расчеты метода
@@ -124,9 +116,15 @@ namespace Laba1
                 DialogResult err = MessageBox.Show("Функция введена неверно!!!\nНажмите ОЧИСТИТЬ и повторите поптыку!", "Ошибка!");
             }
 
-            if (textBox1.Text == "" || textBox2.Text == "" || textBox3.Text == "" || textBox4.Text == "")//проверка на заполненность данных
+            if (textBox2.Text.Length >= 5 || textBox3.Text.Length >= 5)
             {
-                DialogResult err = MessageBox.Show("Введите все данные!!!", "Ошибка!");
+                DialogResult err = MessageBox.Show("Очень большие границы, возможна некорректная работа приложения!", "Внимание!");
+            }
+
+
+            if (textBox1.Text == "" || textBox2.Text == "" || textBox3.Text == "" || textBox4.Text == "" || textBox4.Text.Length > 9)//проверка на заполненность данных
+            {
+                DialogResult err = MessageBox.Show("Введите все данные или уменьшите E!!!", "Ошибка!");
             }
             else
             {
