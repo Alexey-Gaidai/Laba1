@@ -9,18 +9,75 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using org.mariuszgromada.math.mxparser;
 using System.Threading;
+using Google.Apis.Auth.OAuth2;
+using Google.Apis.Sheets.v4;
+using Google.Apis.Sheets.v4.Data;
+using Google.Apis.Services;
+using Google.Apis.Util.Store;
+using System.IO;
 
 namespace Laba1
 {
     public partial class Form1 : Form
     {
         public int counter;//счетчик для шагов
+
+        static readonly string[] Scopes = { SheetsService.Scope.Spreadsheets };
+        static string clientsecret = @"C:\Users\Sezion\source\repos\Laba1\client_secret.json";
+        static readonly string AppName = "laba3";
+        static readonly string SpreadsheetId = "1Kcvpqi-I6wY0HSFGehgdVp_tS70Fk2KQroZT39Z8S5Q";
+        const string Range = "'Лист1'!A1:B10";
+
+
         public Form1()
         {
             InitializeComponent();
         }
+
+        private UserCredential GetSheetsCredential()
+        {
+            using (var stream =
+               new FileStream(clientsecret, FileMode.Open, FileAccess.Read))
+            {
+                var credPath = Path.Combine(Directory.GetCurrentDirectory(), "sheetsCreds.json");
+                return GoogleWebAuthorizationBroker.AuthorizeAsync(
+                    GoogleClientSecrets.Load(stream).Secrets,
+                    Scopes,
+                    "user",
+                    CancellationToken.None,
+                    new FileDataStore(credPath, true)).Result;
+                Console.WriteLine("Credential file saved to: " + credPath);
+            }
+        }
         private void Form1_Load(object sender, EventArgs e)
         {
+            var credential = GetSheetsCredential();
+
+            var service = new SheetsService(new BaseClientService.Initializer()
+            {
+                HttpClientInitializer = credential,
+                ApplicationName = AppName,
+            });
+
+            SpreadsheetsResource.ValuesResource.GetRequest request =
+                  service.Spreadsheets.Values.Get(SpreadsheetId, Range);
+
+            ValueRange response = request.Execute();
+            IList<IList<Object>> values = response.Values;
+            if (values != null && values.Count > 0)
+            {
+                Console.WriteLine("Name, Major");
+                foreach (var row in values)
+                {
+                    // Print columns A and E, which correspond to indices 0 and 4.
+                    Console.WriteLine("{0}, {1}", row[0], row[4]);
+                }
+            }
+            else
+            {
+                Console.WriteLine("No data found.");
+            }
+            Console.Read();
         }
 
         private double f(double x)//вынес подставления значения в функцию в отдельный метод
@@ -200,6 +257,16 @@ namespace Laba1
                 label7.Text = "Шаг: " + +counter + "/" + steps.Count.ToString();
                 counter--;
             }
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            point xy = new point(Convert.ToDouble(textBox5.Text), Convert.ToDouble(textBox6.Text));
+            steps.Add(xy);
+            dataGridView1.Rows.Add(xy.x, xy.y);
+            textBox5.Text = "";
+            textBox6.Text = "";
+            chart1.Series[1].Points.AddXY(xy.x, xy.y);
         }
     }
 
